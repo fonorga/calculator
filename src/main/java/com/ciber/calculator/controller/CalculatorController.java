@@ -9,6 +9,7 @@ import com.ciber.calculator.service.Calculator;
 
 @RestController
 class CalculatorController {
+    
     @Autowired
     private Calculator calculator;
 

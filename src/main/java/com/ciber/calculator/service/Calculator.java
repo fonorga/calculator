@@ -21,7 +21,7 @@ public class Calculator {
     }
 
     //Método para contar los números primos de una lista y devolver la lista marcando los que lo son con un asterisco
-    public String primeNumbers(List<Integer> numList){
+    public List<String> primeNumbers(List<Integer> numList){
         int primeCount = (int) numList.stream()
                 .filter(n -> isPrime(n))
                 .count();
@@ -36,9 +36,10 @@ public class Calculator {
                 })
                 .collect(Collectors.toList());
 
-        String result = "Número de primos: " + primeCount + "\nLista de números (primos con astersico): " + transformedList;
+        System.out.println("\nNúmero de primos: " + primeCount);
+        System.out.println("Lista transformada: " + transformedList);
 
-        return result;
+        return transformedList;
     }
 
     //Método auxiliar para el cálculo de números primos

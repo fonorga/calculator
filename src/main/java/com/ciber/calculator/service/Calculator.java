@@ -23,7 +23,7 @@ public class Calculator {
     //Método para contar los números primos de una lista y devolver la lista marcando los que lo son con un asterisco
     public String primeNumbers(List<Integer> numList){
         int primeCount = (int) numList.stream()
-                .filter(this::isPrime)
+                .filter(n -> isPrime(n))
                 .count();
 
         List<String> transformedList = numList.stream()

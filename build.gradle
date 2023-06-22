@@ -6,7 +6,7 @@ plugins {
 	id 'checkstyle'
 }
 
-group = 'com.ciber6'
+group = 'com.ciber'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '11'
 
@@ -16,8 +16,9 @@ repositories {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'javax.validation:validation-api:2.0.1.Final'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'junit:junit:4.13'
+	testImplementation 'org.junit.jupiter:junit-jupiter:5.8.0'
 }
 
 tasks.named('test') {

@@ -38,8 +38,8 @@ class CalculatorController {
     //Método para contar los números primos de una lista y devolver la lista marcando los que lo son con un asterisco
     @RequestMapping("/primeNumbers")
     ResponseEntity<String> primeNumbers(@RequestParam("numbers") @NotEmpty List<Integer> numList){
-        List<String> result = calculator.primeNumbers(numList); //Se llama al servicio. La lista se pasó como parámetro en la URL
-        return ResponseEntity.ok("Lista de números (primos con asterisco): " + result); //Devuelve el código HTTP 200 OK
+        String result = calculator.primeNumbers(numList); //Se llama al servicio. La lista se pasó como parámetro en la URL
+        return ResponseEntity.ok(result); //Devuelve el código HTTP 200 OK
     }
 
     //Método para la validación de los parámetros

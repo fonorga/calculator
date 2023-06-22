@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,13 +20,6 @@ import com.ciber.calculator.service.Calculator;
 class CalculatorController {
     @Autowired
     private Calculator calculator;
-
-    /* Antiguo
-    @RequestMapping("/sum")
-    String sum(@RequestParam("a") Integer a, @RequestParam("b") Integer b) {
-        return String.valueOf(calculator.sum(a, b));
-    }
-    */
 
     //Método para sumar los números pares de una lista
     @RequestMapping("/sumEvenNumbers")
@@ -43,9 +35,16 @@ class CalculatorController {
         return ResponseEntity.ok("El producto de los números impares es: " + mult); //Devuelve el código HTTP 200 OK
     }
 
+    //Método para contar los números primos de una lista y devolver la lista marcando los que lo son con un asterisco
+    @RequestMapping("/primeNumbers")
+    ResponseEntity<String> primeNumbers(@RequestParam("numbers") @NotEmpty List<Integer> numList){
+        List<String> result = calculator.primeNumbers(numList); //Se llama al servicio. La lista se pasó como parámetro en la URL
+        return ResponseEntity.ok("Lista de números (primos con asterisco): " + result); //Devuelve el código HTTP 200 OK
+    }
+
     //Método para la validación de los parámetros
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<String> handleValidationException(MethodArgumentNotValidException ex) {
+    ResponseEntity<String> handleValidationException(MethodArgumentNotValidException ex) {
         BindingResult result = ex.getBindingResult();
         List<FieldError> fieldErrors = result.getFieldErrors();
         

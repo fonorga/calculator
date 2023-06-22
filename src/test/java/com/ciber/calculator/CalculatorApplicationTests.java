@@ -19,13 +19,6 @@ public class CalculatorApplicationTests {
 	void contextLoads() {
 	}
 
-	/* Antiguo
-	@Test
-	public void testSum() {
-		assertEquals(5, calculator.sum(2, 3));
-	}
-	*/
-
 	@Test
 	public void testSumEvenNumbers() {
 		List<Integer> list = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
@@ -36,5 +29,11 @@ public class CalculatorApplicationTests {
 	public void testMultiplyOddNumbers() {
 		List<Integer> list = Arrays.asList(1, 2, 3, 4, 5);
 		assertEquals(15, calculator.multiplyOddNumbers(list)); //El resultado esperado es 15
+	}
+
+	@Test
+	public void testPrimeNumbers() {
+		List<Integer> list = Arrays.asList(1, 25, 37, 42, 53, 68, 75, 87, 91, 100);
+		assertEquals(Arrays.asList("1*", "25", "37*", "42", "53*", "68", "75", "87*", "91*", "100"), calculator.primeNumbers(list));
 	}
 }

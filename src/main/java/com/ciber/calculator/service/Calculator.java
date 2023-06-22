@@ -1,16 +1,11 @@
 package com.ciber.calculator.service;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
 @Service
 public class Calculator {
-    /* Antiguo
-    public int sum(int a, int b) {
-        return a + b;
-    }
-    */
-
     //Método para sumar los números pares de una lista
     public int sumEvenNumbers(List<Integer> numList) {
         return numList.stream()
@@ -25,4 +20,40 @@ public class Calculator {
                 .reduce(1, (a, b) -> a * b); //Multiplicamos los números filtrados
     }
 
+    //Método para contar los números primos de una lista y devolver la lista marcando los que lo son con un asterisco
+    public List<String> primeNumbers(List<Integer> numList){
+        int primeCount = (int) numList.stream()
+                .filter(this::isPrime)
+                .count();
+
+        List<String> transformedList = numList.stream()
+                .map(num -> {
+                    if (isPrime(num)) {
+                        return num + "*";
+                    } else {
+                        return String.valueOf(num);
+                    }
+                })
+                .collect(Collectors.toList());
+
+        System.out.println("Número de primos: " + primeCount);
+        System.out.println("Lista transformada: " + transformedList);
+
+        return transformedList;
+    }
+
+    //Método auxiliar para el cálculo de números primos
+    private boolean isPrime(int num) {
+        if (num < 2) {
+            return false;
+        }
+
+        for (int i = 2; i <= Math.sqrt(num); i++) {
+            if (num % i == 0) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }

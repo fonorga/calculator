@@ -10,14 +10,19 @@ import javax.validation.constraints.NotEmpty;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import com.ciber.calculator.service.Calculator;
 
@@ -75,21 +80,47 @@ class CalculatorController {
         return ResponseEntity.ok("Lista de números (primos con asterisco): " + result); //Devuelve el código HTTP 200 OK
     }
 
-    //Método para la validación de los parámetros
+    //Métodos para la validación de parámetros y el control de algunas excepciones comunes
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    ResponseEntity<String> handleValidationException(MethodArgumentTypeMismatchException ex) {
+        String parameterName = ex.getName();
+        String parameterType = ex.getRequiredType() !=null ? ex.getRequiredType().getSimpleName() : "alternativo";
+        String errorMessage = "El tipo del parámetro '" + parameterName + "' no es válido en esta solicitud. Se esperaba un tipo de dato " + parameterType + ".";
+
+        return ResponseEntity.badRequest().body(errorMessage);
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    ResponseEntity<String> handleMissingParameterException(MissingServletRequestParameterException ex) {
+        String parameterName = ex.getParameterName();
+        String errorMessage = "El parámetro requerido '" + parameterName + "' no está presente en la solicitud.";
+
+        return ResponseEntity.badRequest().body(errorMessage);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    ResponseEntity<String> handleValidationException(MethodArgumentNotValidException ex) {
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public ResponseEntity<String> handleValidationException(MethodArgumentNotValidException ex) {
         BindingResult result = ex.getBindingResult();
         List<FieldError> fieldErrors = result.getFieldErrors();
         
-        // Construir un mensaje de error con los detalles de validación
         StringBuilder errorMessage = new StringBuilder();
         for (FieldError fieldError : fieldErrors) {
             errorMessage.append(fieldError.getDefaultMessage()).append("; ");
         }
 
-        return ResponseEntity.badRequest().body("Error de validación"); //Devuelve el código HTTP 400 Bad Request 
+        return ResponseEntity.badRequest().body("Error de validación: " + errorMessage.toString());
     }
 
+    @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    ResponseEntity<String> handleException(Exception ex) {
+        String errorMessage = "Se produjo un error en el servidor.";
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorMessage);
+    }
 
     //Método para la configuración de Swagger
     @Bean
@@ -100,5 +131,4 @@ class CalculatorController {
                 .paths(PathSelectors.any())
                 .build();
     }
-
 }

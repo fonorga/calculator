@@ -32,7 +32,7 @@ class CalculatorController {
     @Autowired
     private Calculator calculator;
 
-    @ApiOperation(value = "Resultados de la calculadora", response =  Calculator.class)
+    @ApiOperation(value = "Sumar números pares", response =  Calculator.class)
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "OK"),
         @ApiResponse(code = 400, message = "Solicitud inválida"),
@@ -45,12 +45,24 @@ class CalculatorController {
         return ResponseEntity.ok("La suma de números pares es: " + sum); //Devuelve el código HTTP 200 OK
     }
 
+    @ApiOperation(value = "Multiplicar números impares", response =  Calculator.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK"),
+        @ApiResponse(code = 400, message = "Solicitud inválida"),
+    })
+
     //Método para multiplicar los números impares de una lista
     @RequestMapping("/multiplyOddNumbers")
     ResponseEntity<String> multiplyOddNumbers(@RequestParam("numbers") @NotEmpty List<Integer> numList){
         int mult = calculator.multiplyOddNumbers(numList); //Se llama al servicio. La lista se pasó como parámetro en la URL
         return ResponseEntity.ok("El producto de los números impares es: " + mult); //Devuelve el código HTTP 200 OK
     }
+
+    @ApiOperation(value = "Identificar números primos", response =  Calculator.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK"),
+        @ApiResponse(code = 400, message = "Solicitud inválida"),
+    })
 
     //Método para contar los números primos de una lista y devolver la lista marcando los que lo son con un asterisco
     @RequestMapping("/primeNumbers")

@@ -11,7 +11,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -39,7 +39,7 @@ class CalculatorController {
     })
 
     //Método para sumar los números pares de una lista
-    @RequestMapping("/sumEvenNumbers")
+    @PostMapping("/sumEvenNumbers")
     ResponseEntity<String> sumEvenNumbers(@RequestParam("numbers") @NotEmpty List<Integer> numList){
         int sum = calculator.sumEvenNumbers(numList); //Se llama al servicio. La lista se pasó como parámetro en la URL
         return ResponseEntity.ok("La suma de números pares es: " + sum); //Devuelve el código HTTP 200 OK
@@ -52,7 +52,7 @@ class CalculatorController {
     })
 
     //Método para multiplicar los números impares de una lista
-    @RequestMapping("/multiplyOddNumbers")
+    @PostMapping("/multiplyOddNumbers")
     ResponseEntity<String> multiplyOddNumbers(@RequestParam("numbers") @NotEmpty List<Integer> numList){
         int mult = calculator.multiplyOddNumbers(numList); //Se llama al servicio. La lista se pasó como parámetro en la URL
         return ResponseEntity.ok("El producto de los números impares es: " + mult); //Devuelve el código HTTP 200 OK
@@ -65,7 +65,7 @@ class CalculatorController {
     })
 
     //Método para contar los números primos de una lista y devolver la lista marcando los que lo son con un asterisco
-    @RequestMapping("/primeNumbers")
+    @PostMapping("/primeNumbers")
     ResponseEntity<String> primeNumbers(@RequestParam("numbers") @NotEmpty List<Integer> numList){
         List<String> result = calculator.primeNumbers(numList); //Se llama al servicio. La lista se pasó como parámetro en la URL
         return ResponseEntity.ok("Lista de números (primos con asterisco): " + result); //Devuelve el código HTTP 200 OK

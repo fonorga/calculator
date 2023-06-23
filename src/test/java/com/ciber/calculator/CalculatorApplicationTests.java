@@ -34,6 +34,6 @@ public class CalculatorApplicationTests {
 	@Test
 	public void testPrimeNumbers() {
 		List<Integer> list = Arrays.asList(2, 25, 37, 42, 53, 68, 75, 89, 97, 100);
-		assertEquals(Arrays.asList("2*", "25", "37*", "42", "53*", "68", "75", "89*", "97*", "100"), calculator.primeNumbers(list));
+		assertEquals(Arrays.asList("2*", "25", "37*", "42", "53*", "68", "75", "89*", "97*", "100"), calculator.primeNumbers(list)); //Indicamos el array esperado
 	}
 }

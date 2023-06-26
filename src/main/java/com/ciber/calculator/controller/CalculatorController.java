@@ -1,134 +1,100 @@
 package com.ciber.calculator.controller;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 import java.util.List;
 
 import javax.validation.constraints.NotEmpty;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.http.HttpStatus;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.MissingServletRequestParameterException;
-import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
-
-import com.ciber.calculator.service.Calculator;
+import com.ciber.calculator.data.PrimeNumbersResult;
+import com.ciber.calculator.service.CalculatorService;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import springfox.documentation.builders.PathSelectors;
-import springfox.documentation.builders.RequestHandlerSelectors;
-import springfox.documentation.spi.DocumentationType;
-import springfox.documentation.spring.web.plugins.Docket;
 
 @RestController
-@Api(tags = "Calculator API", description = "Incluye varios métodos para realizar operaciones con listas de números")
+@RequestMapping("/calculator")
+@Api(tags = "Calculator API", description = "Includes several methods to perform operations with lists of numbers")
 class CalculatorController {
-    @Autowired
-    private Calculator calculator;
 
-    //Anotación personalizada para evitar repetir el código para cada método
-    @Target(ElementType.METHOD)
-    @Retention(RetentionPolicy.RUNTIME)
+    private static final Log LOGGER = LogFactory.getLog("CalculatorController");
+    
+    private final CalculatorService calculatorService;
+
+    public CalculatorController(CalculatorService calculatorService) {
+        this.calculatorService = calculatorService;
+    } 
+
+    /**
+     * Method that sums the even numbers of a list
+     * @param numList List of numbers
+     * @return The sum of even numbers
+     */
+    @PostMapping("/sumEvenNumbers")
+    @ApiOperation(value = "Even numbers sum", response = Integer.class)
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "OK"),
-        @ApiResponse(code = 400, message = "Solicitud inválida"),
-        @ApiResponse(code = 500, message = "Error interno del servidor")
+        @ApiResponse(code = 400, message = "Bad Request")
     })
-    public @interface ApiResponsesForStringResponse {
-    }
+    ResponseEntity<Integer> sumEvenNumbers(@ApiParam(value = "List of numbers", required = true) @RequestParam("numbers") @NotEmpty List<Integer> numList){
+        LOGGER.debug("Received numbers: " + numList);
 
-    //Método para sumar los números pares de una lista
-    @PostMapping("/sumEvenNumbers")
-    @ApiOperation(value = "Sumar números pares", response = ResponseEntity.class)
-    @ApiResponsesForStringResponse
-    ResponseEntity<String> sumEvenNumbers(@ApiParam(value = "Lista de números", required = true) @RequestParam("numbers") @NotEmpty List<Integer> numList){
-        int sum = calculator.sumEvenNumbers(numList); //Se llama al servicio. La lista se pasó como parámetro en la URL
-        return ResponseEntity.ok("La suma de números pares es: " + sum); //Devuelve el código HTTP 200 OK
+        int result = calculatorService.sumEvenNumbers(numList);
+
+        LOGGER.debug("Even numbers sum: " + result);
+
+        return ResponseEntity.ok(result);
     }
     
-    //Método para multiplicar los números impares de una lista
+    /**
+     * Method that multiplies the odd numbers of a lists
+     * @param numList List of numbers
+     * @return The multiply of odd numbers
+     */
     @PostMapping("/multiplyOddNumbers")
-    @ApiOperation(value = "Multiplicar números impares", response = ResponseEntity.class)
-    @ApiResponsesForStringResponse
-    ResponseEntity<String> multiplyOddNumbers(@ApiParam(value = "Lista de números", required = true) @RequestParam("numbers") @NotEmpty List<Integer> numList){
-        int mult = calculator.multiplyOddNumbers(numList); //Se llama al servicio. La lista se pasó como parámetro en la URL
-        return ResponseEntity.ok("El producto de los números impares es: " + mult); //Devuelve el código HTTP 200 OK
+    @ApiOperation(value = "Multiply odd numbers", response = Integer.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK"),
+        @ApiResponse(code = 400, message = "Bad Request")
+    })
+    ResponseEntity<Integer> multiplyOddNumbers(@ApiParam(value = "List of numbers", required = true) @RequestParam("numbers") @NotEmpty List<Integer> numList){
+        LOGGER.debug("Received numbers: " + numList);
+
+        int result = calculatorService.multiplyOddNumbers(numList);
+        
+        LOGGER.debug("Odd numbers multiplication: " + result);
+
+        return ResponseEntity.ok(result);
     }
     
-    //Método para contar los números primos de una lista y devolver la lista marcando los que lo son con un asterisco
-    @PostMapping("/primeNumbers")
-    @ApiOperation(value = "Identificar números primos", response = ResponseEntity.class)
-    @ApiResponsesForStringResponse
-    ResponseEntity<String> primeNumbers(@ApiParam(value = "Lista de números", required = true) @RequestParam("numbers") @NotEmpty List<Integer> numList){
-        List<String> result = calculator.primeNumbers(numList); //Se llama al servicio. La lista se pasó como parámetro en la URL
-        return ResponseEntity.ok("Lista de números (primos con asterisco): " + result); //Devuelve el código HTTP 200 OK
-    }
+    /**
+     * Method to count the prime numbers in a list and return it, leaving only those that are prime
+     * @param numList List of numbers
+     * @return A PrimeNumberResult object, including the count of the prime numbers and a list with them
+     */
+    @GetMapping(value = "/getPrimeNumbers", produces = "application/json")
+    @ApiOperation(value = "Identify prime numbers", response = PrimeNumbersResult.class)
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "OK"),
+        @ApiResponse(code = 400, message = "Bad Request")
+    })
+    ResponseEntity<PrimeNumbersResult> getPrimeNumbers(@ApiParam(value = "List of numbers", required = true) @RequestParam("numbers") @NotEmpty List<Integer> numList){
+        LOGGER.debug("Received numbers: " + numList);
 
-    //Métodos para la validación de parámetros y el control de algunas excepciones comunes
-    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    ResponseEntity<String> handleValidationException(MethodArgumentTypeMismatchException ex) {
-        String parameterName = ex.getName();
-        String parameterType = ex.getRequiredType() !=null ? ex.getRequiredType().getSimpleName() : "alternativo";
-        String errorMessage = "El tipo del parámetro '" + parameterName + "' no es válido en esta solicitud. Se esperaba un tipo de dato " + parameterType + ".";
+        PrimeNumbersResult result = calculatorService.getPrimeNumbers(numList);
 
-        return ResponseEntity.badRequest().body(errorMessage);
-    }
-
-    @ExceptionHandler(MissingServletRequestParameterException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    ResponseEntity<String> handleMissingParameterException(MissingServletRequestParameterException ex) {
-        String parameterName = ex.getParameterName();
-        String errorMessage = "El parámetro requerido '" + parameterName + "' no está presente en la solicitud.";
-
-        return ResponseEntity.badRequest().body(errorMessage);
-    }
-
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ResponseBody
-    public ResponseEntity<String> handleValidationException(MethodArgumentNotValidException ex) {
-        BindingResult result = ex.getBindingResult();
-        List<FieldError> fieldErrors = result.getFieldErrors();
+        LOGGER.debug("Prime numbers count: " + result.getCount());
+        LOGGER.debug("Prime numbers list: " + result.getPrimeNumbers());
         
-        StringBuilder errorMessage = new StringBuilder();
-        for (FieldError fieldError : fieldErrors) {
-            errorMessage.append(fieldError.getDefaultMessage()).append("; ");
-        }
-
-        return ResponseEntity.badRequest().body("Error de validación: " + errorMessage.toString());
-    }
-
-    @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    ResponseEntity<String> handleException(Exception ex) {
-        String errorMessage = "Se produjo un error en el servidor.";
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorMessage);
-    }
-
-    //Método para la configuración de Swagger
-    @Bean
-    public Docket api() {
-        return new Docket(DocumentationType.SWAGGER_2)
-                .select()
-                .apis(RequestHandlerSelectors.basePackage("com.ciber.calculator.controller"))
-                .paths(PathSelectors.any())
-                .build();
+        return ResponseEntity.ok(result);
     }
 }
